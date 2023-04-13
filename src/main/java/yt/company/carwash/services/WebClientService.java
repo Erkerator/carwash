@@ -2,10 +2,10 @@ package yt.company.carwash.services;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-import yt.company.carwash.models.City;
 import yt.company.carwash.models.Client;
-import yt.company.carwash.models.User;
 import yt.company.carwash.repository.CityRepository;
 import yt.company.carwash.repository.ClientRepository;
 
@@ -13,12 +13,16 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ClientService {
+public class WebClientService {
 
     private final ClientRepository clientRepository;
     private final UserService userService;
 
     private final CityRepository cityRepository;
+
+    @Lazy
+    @Autowired
+    private OrderBaseService orderBaseService;
 
     public Client getClient(Long id) {
         return clientRepository.findById(id).orElseThrow();
@@ -30,10 +34,10 @@ public class ClientService {
 
     public Client createClient(String name, String surname, String phone, Long cityId, Long userId) {
         Client client = clientRepository.findByPhone(phone);
-        if(client == null) {
+        if (client == null) {
             Client account = new Client();
             account.setUser(userService.getUser(userId));
-            account.setCity(cityRepository.findById(cityId).orElseThrow(()->new EntityNotFoundException("City not found")));
+            account.setCity(cityRepository.findById(cityId).orElseThrow(() -> new EntityNotFoundException("City not found")));
             account.setPhone(phone);
             account.setName(name);
             account.setSurname(surname);
@@ -46,7 +50,4 @@ public class ClientService {
     public void deleteClient(Long id) {
         clientRepository.deleteById(id);
     }
-    /*public Client updateClient(Client client) {
-        return clientRepository.save(client);
-    }*/
 }
